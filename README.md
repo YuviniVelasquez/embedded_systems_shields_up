@@ -100,14 +100,13 @@ As shown in Figure 1.2  this process eliminates non expected current values and 
 ## **Fault 2: PID_FX_GAINS**
 
 <table>
-
   <tr>
     <td><img src="https://github.com/YuviniVelasquez/embedded_systems_shields_up/blob/main/Images/2.1.jpg" width=500></td>
     <td><img src="https://github.com/YuviniVelasquez/embedded_systems_shields_up/blob/main/Images/2.2.jpg" width=500 ></td>
   </tr>
     <tr style="text-align:center">
-    <td>Figure 2.1. After the present fault, the gain of the current is off.  </td>
-     <td>Figure 2.2 Implemented a verification method that compares a previous PID value used in the last setup with the current value.</td>
+    <td width= "50%">Figure 2.1. After the present fault, the gain of the current is off.  </td>
+     <td width= "50%">Figure 2.2 Implemented a verification method that compares a previous PID value used in the last setup with the current value.</td>
   </tr>
  </table>
 
