@@ -219,5 +219,5 @@ To visualize the reset, I set the oscilloscope which recorded the reset process.
 <div style="text-align:center"><img src="https://github.com/YuviniVelasquez/embedded_systems_shields_up/blob/main/Images/3.1.jpg" /></div>
 <div style="text-align:center">Restart process visualization with oscilloscope</div>
 
-## Conclusion and retrospective##
+## Conclusion and retrospective ##
 This project was very interesting and engaging. I was able to usea embedded system concepts learned. I did not have any hardware, driver, or debuggger problems as I did in onther projects but I did have to spend some time setting up the Analog Discovery 2 and using the oscilloscope.
