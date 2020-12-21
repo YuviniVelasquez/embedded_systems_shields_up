@@ -14,7 +14,7 @@ In this project, I modified the code provided that controlled a Freedom Developi
      <td>Freedom board with PCB, LCD, and AD2 as oscilloscope</td>
   </tr>
   <tr>
-    <td><img src="images/freedom_developmen_board.jpg" width=450></td>
+    <td><img src="https://github.com/YuviniVelasquez/embedded_systems_shields_up/blob/main/Images/freedom_developmen_board.jpg" width=450></td>
     <td><img src="images/shield_pcb_debugging_setup.jpg" width=450 ></td>
     <td><img src="images/board_with_LDC.jpg" width=270 ></td>
   </tr>
