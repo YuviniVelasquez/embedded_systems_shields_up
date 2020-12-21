@@ -78,7 +78,19 @@ float UpdatePID(SPid * pid, float error, float position){
 
 FX16_16 UpdatePID_FX(SPidFX * pid, FX16_16 error_FX, FX16_16 position_FX){
 	FX16_16 pTerm, dTerm, iTerm, diff, ret_val;
-
+	
+//Verification if not initial default values
+if (pGain_Store || iGain_store || dGain_Store){
+    if(pGain_Store != pid->pGain){
+        pid->pGain = pGain_Store; 
+    }
+    if(iGain_Store != pid->iGain){
+        pid->iGain = iGain_Store; 
+    }
+    if(dGain_Store != pid->dGain){
+        pid->dGain = dGain_Store; 
+    }
+}
 	// calculate the proportional term
 	pTerm = Multiply_FX(pid->pGain, error_FX);
 
@@ -96,6 +108,10 @@ FX16_16 UpdatePID_FX(SPidFX * pid, FX16_16 error_FX, FX16_16 position_FX){
 
 	ret_val = Add_FX(pTerm, iTerm);
 	ret_val = Subtract_FX(ret_val, dTerm);
+	//Storing Gain Values
+  	pGain_Store = pid->pGain;
+  	iGain_Store = pid->iGain;
+	dGain_Store = pid->dGain;
 	return ret_val;
 }
 
