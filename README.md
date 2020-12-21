@@ -15,14 +15,14 @@ In this project, I modified the code provided that controlled a Freedom Developi
   </tr>
   <tr>
     <td><img src="https://github.com/YuviniVelasquez/embedded_systems_shields_up/blob/main/Images/freedom_developmen_board.jpg" width=450></td>
-    <td><img src="images/shield_pcb_debugging_setup.jpg" width=450 ></td>
-    <td><img src="images/board_with_LDC.jpg" width=270 ></td>
+    <td><img src="https://github.com/YuviniVelasquez/embedded_systems_shields_up/blob/main/Images/shield_pcb_debugging_setup.jpg" width=450 ></td>
+    <td><img src="https://github.com/YuviniVelasquez/embedded_systems_shields_up/blob/main/Images/board_with_LDC.jpg" width=270 ></td>
   </tr>
  </table>
 
 To solve any of these errors, it was necessary to understand the architecture of the MCU and the implemented code. This allowed to have a better debugging approach.
 
-<div style="text-align:center"><img src="images/Flowchart.jpg" /></div>
+<div style="text-align:center"><img src="https://github.com/YuviniVelasquez/embedded_systems_shields_up/blob/main/Images/Flowchart.jpg" /></div>
 <div style="text-align:center">Architecture and Diagram with Perpherals</div>
 
 ## **Setup** 
@@ -41,8 +41,8 @@ To manage these faults included creating a system that stores and verifies previ
 <table>
 
   <tr>
-    <td><img src="images/1.1.jpg" width=500></td>
-    <td><img src="images/1.2.jpg" width=500 ></td>
+    <td><img src="https://github.com/YuviniVelasquez/embedded_systems_shields_up/blob/main/Images/1.1.jpg" width=500></td>
+    <td><img src="https://github.com/YuviniVelasquez/embedded_systems_shields_up/blob/main/Images/1.2.jpg" width=500 ></td>
   </tr>
     <tr style="text-align:center">
     <td>Figure 1.1. Current goes unexpectedly high, there is no verification process where the set current is verified with its previous value, leaving room for error. </td>
@@ -102,8 +102,8 @@ As shown in Figure 1.2  this process eliminates non expected current values and 
 <table>
 
   <tr>
-    <td><img src="images/2.1.jpg" width=500></td>
-    <td><img src="images/2.2.jpg" width=500 ></td>
+    <td><img src="https://github.com/YuviniVelasquez/embedded_systems_shields_up/blob/main/Images/2.1.jpg" width=500></td>
+    <td><img src="https://github.com/YuviniVelasquez/embedded_systems_shields_up/blob/main/Images/2.2.jpg" width=500 ></td>
   </tr>
     <tr style="text-align:center">
     <td>Figure 2.1. After the present fault, the gain of the current is off.  </td>
@@ -217,7 +217,7 @@ void LCD_Text_PrintChar(PT_T * pos, char ch) {
 ### **Evaluation of Effectiveness** ###
 To visualize the reset, I set the oscilloscope which recorded the reset process. From the time the infinite loop starts to the reset there is a 605 ms time. This solution may reset and the MCU to which may cause the loss of current processes, but it is a great solution since most likely the OS was in a non-recoverable state.
 
-<div style="text-align:center"><img src="images/3.1.jpg" /></div>
+<div style="text-align:center"><img src="https://github.com/YuviniVelasquez/embedded_systems_shields_up/blob/main/Images/3.1.jpg" /></div>
 <div style="text-align:center">Restart process visualization with oscilloscope</div>
 
 ## Conclusion and retrospective##
