@@ -1,5 +1,5 @@
 # Embedded Systems - Shields Up
-## An analysis, debugging, and managment of most common errors in embedded systems.
+## An analysis, debugging, and managment of software errors in embedded systems.
 
 ## **Introduction**
 
@@ -97,7 +97,6 @@ void Control_HBLED(void) {
 ### **Evaluation of Effectiveness** ###
 As shown in Figure 1.2  this process eliminates non expected current values and there isn’t a spike in any of the currents. Other solutions were first tested but there was still a spike in the current. There is no visible signal on the oscilloscope of the high current output which shows that there is a good timing response for this solution. This is even with an oscilloscope visualization of 15uS per division.  
 
-
 ## **Fault 2: PID_FX_GAINS**
 
 <table>
@@ -158,3 +157,68 @@ if (pGain_Store || iGain_store || dGain_Store){
 
 ### **Evaluation of Effectiveness** ###
 As shown in Figure 2.2 this process eliminates any unwanted change in the gain of current. This solution does not require a correction time as seen in the orange current. There is no visible signal on the oscilloscope of where the problem is, which shows that there is a good timing response for this solution. This is even with an oscilloscope visualization of 20mS per division.  
+
+## **Fault 3: LCD_MUTEX**
+
+ [Video Link 3.1](https://youtu.be/-7olpZ1rwAU)
+
+ Getting into infinite loop because osMutexAdquire receives LCD_mutex where it gets stuck.
+
+ [Video link 3.2: ](https://youtu.be/ak2Ju7Ihu5I)
+
+The fault **TR_LCD_mutex** acquires the **LDC_mutex** and does not return it. On **Video link 3.1** we can see how the LCD gets stuck. This simulates a case when the mutex is stuck in an infinite loop. 
+
+### **Fault Management Approach** ###
+
+To be able to solve this problem, I first needed to figure out in which mutex the code will get stuck. I noticed that it was the LCD that was stuck, and I also analyzed the fault code where it was stuck in. A WatchDog timer was implemented to avoid getting the MCU stuck at the LCD mutex. 
+
+First, I included the code for a Watchdog timer in the program files called **COPT_WDT.c** and **COP_WDT.h** where the initialization and service of the WatchDog timer is located. After this, I disabled the function that by default disables the WatchDog by defining **DISABLE_WDOG** to 0.
+
+To service the WatchDog timer, I found the function that was called the most by the LCD process by adding breakpoints to the functions used in the LCD. With this process I found that the function **LCD_Text_PrintChar** gets called more times than other LCD functions and I decided to service the timer there. 
+
+```cpp
+#ifndef COP_WDT_H
+#define COP_WDT_H
+
+void Init_COP_WDT(void);
+void Service_COP_WDT(void);
+void Flash_Reset_Cause(void);
+
+#endif // COP_WDT_H
+
+void Init_COP_WDT(void) {
+	// Select 1 kHz clock and 1024 cycle time-out
+	SIM->COPC = SIM_COPC_COPT(3) & ~SIM_COPC_COPCLKS_MASK & ~SIM_COPC_COPW_MASK; 
+	}
+
+void Service_COP_WDT(void) {
+	SIM->SRVCOP = 0x55;
+	SIM->SRVCOP = 0xaa;
+}
+
+#ifndef DISABLE_WDOG
+  #define DISABLE_WDOG                 0
+#endif
+
+void SystemInit (void) {
+#if (DISABLE_WDOG)
+  /* SIM_COPC: COPT=0,COPCLKS=0,COPW=0 */
+  SIM->COPC = (uint32_t)0x00u;
+#endif /* (DISABLE_WDOG) */
+
+void LCD_Text_PrintChar(PT_T * pos, char ch) {
+	uint8_t glyph_index_entry;
+	const uint8_t * glyph_data; // start of the data
+#if BITS_PER_PIXEL == 1					// Copy bitmap byte directly
+	PT_T cur_pos;
+#endif
+```
+
+### **Evaluation of Effectiveness** ###
+To visualize the reset, I set the oscilloscope which recorded the reset process. From the time the infinite loop starts to the reset there is a 605 ms time. This solution may reset and the MCU to which may cause the loss of current processes, but it is a great solution since most likely the OS was in a non-recoverable state.
+
+<div style="text-align:center"><img src="images/3.1.jpg" /></div>
+<div style="text-align:center">Restart process visualization with oscilloscope</div>
+
+## Conclusion and retrospective##
+This project was very interesting and engaging. I was able to usea embedded system concepts learned. I did not have any hardware, driver, or debuggger problems as I did in onther projects but I did have to spend some time setting up the Analog Discovery 2 and using the oscilloscope.
