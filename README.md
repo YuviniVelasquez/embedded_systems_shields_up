@@ -1,11 +1,29 @@
 # Embedded Systems - Shields Up
 ## An analysis, debugging, and managment of software errors in embedded systems.
 
-## **Introduction**
+# Table of Content
+1. [Introduction](#introduction)
+2. [Setup](#setup)
+3. [Debug Approach](#debug)
+    1. [Fault 1: SETPOINT_HIGH](#debug1)
+      1. [Analysis](#debug1_1)
+      2. [Fault Debugging Approach](#debug1_2)
+      3. [Evaluation of Effectiveness](#debug1_3)
+    2. [Fault 2: PID_FX_GAINS](#debug2)
+      1. [Analysis](#debug2_1)
+      2. [Fault Debugging Approach](#debug2_2)
+      3. [Evaluation of Effectiveness](#debug2_3)     
+    3. [Fault 3: SETPOINT_HIGH](#debug3)
+      1. [Analysis](#debug3_1)
+      2. [Fault Debugging Approach](#debug3_2)
+      3. [Evaluation of Effectiveness](#debug3_3)
+4. [Conclusions](#conclusions)
+
+## 1. Introduction <a name="introduction"></a>
 
 There are many errors and faults that need to be prevented and managed when creating and designing a robust Embedded System. These error can be internal or external faults such as exploit attacks, device failures, bad programming practices, or even change of bits because of solar flare. The following project tackles some of the most common errors and provides a solution and analysis of this solution.
 
-In this project, I modified the code provided that controlled a Freedom Developing board with NXP Kinetis processor with an LCD display and I handled the most common errors in Embedded Systems. I layed out my debugging process, the tools I used, provided with videos or oscilloscope screenshots to view the bugs, and I analized the efficiency of the solution I proposed.
+In this project, I modified the code provided that controlled a Freedom Developing board with NXP Kinetis processor with an LCD display and I handled common software errors in Embedded Systems. I layed out the debugging process, the tools I used, I provided with videos or oscilloscope screenshots to view the bugs, and I analized the efficiency of the solution I proposed.
 
 <table>
   <tr style="text-align:center">
@@ -25,19 +43,21 @@ To solve any of these errors, it was necessary to understand the architecture of
 <div style="text-align:center"><img src="https://github.com/YuviniVelasquez/embedded_systems_shields_up/blob/main/Images/Flowchart.jpg" /></div>
 <div style="text-align:center">Architecture and Diagram with Perpherals</div>
 
-## **Setup** 
+## 2. Setup <a name="setup"></a>
+
 This project runs on the [Freedom Development Board](https://www.digikey.com/en/products/detail/freescale-semiconductor-nxp/FRDM-KL25Z/3529594) which has a ARM Cortex-M0+ 32-Bit MCU.
 
-To view the behavior of the board, I used an oscilloscope by using the [Analog Discovery 2](https://store.digilentinc.com/analog-discovery-2-100msps-usb-oscilloscope-logic-analyzer-and-variable-power-supply/) which allowed to view the behavior of some pins and the current through the LED thanks to the [PCB Shield](PDFs_and_Manuals/Freedom-KL25Z-Shield-v12-Hardware-Manual.pdf). The Analog Discovery board uses [Waveforms](https://reference.digilentinc.com/reference/software/waveforms/waveforms-3/start) as the virtual oscillloscope and waveform generator
+To view the behavior of the board, I used an oscilloscope by using the [Analog Discovery 2](https://store.digilentinc.com/analog-discovery-2-100msps-usb-oscilloscope-logic-analyzer-and-variable-power-supply/) which allowed to view the behavior of signals and current through the LED via pins and the [PCB Shield](PDFs_and_Manuals/Freedom-KL25Z-Shield-v12-Hardware-Manual.pdf). The Analog Discovery board uses [Waveforms](https://reference.digilentinc.com/reference/software/waveforms/waveforms-3/start) as the virtual oscillloscope and waveform generator.
 
  I also used the [Keil uVision IDE](www.keil.com/mdk5/install) to code and debug the MCU board and it also it supports the debugging peripheral in the board called OpenSDA. With the OpenSDA platform, I could watch the Stack and I could add variables in the Watch List.
 
-## **Debugging Approach**
+## 3. Debugging Approach <a name="debug"></a>
 
 To manage these faults included creating a system that stores and verifies previous values, adding maximum and minimum value verifiers to keep the threshold, storing and verifying configuration periodically, and adding a mechanism to restart the system such as a Watchdog timer. 
 
-## **Fault 1: SETPOINT_HIGH**
+## 3.1 Fault 1: SETPOINT_HIGH <a name="debug1"></a>
 
+### 3.1.1 Analysis <a name="debug1_1"></a>
 <table>
 
   <tr>
@@ -52,7 +72,7 @@ To manage these faults included creating a system that stores and verifies previ
 
 The fault set_point_high manually changes the current setpoint which make the current go very high. On Figure 0.1 we can see how the current goes high for 1.745 ms. This simulates a case when the current is set to high by an unexpected event. After some current comparison in the **Control_HBLED** we can correct an unexpected high value.
 
-### **Fault Management Approach** ###
+### 3.1.2 Fault Debugging Approach <a name="debug1_2"></a>
 To be able to solve this problem, I first needed to figure out the function that is updating the **g_set_current** value. This function happened to be [Update_Set_Current](Source/control.c#L295).
 
 In here I created a copy of the set current called **g_set_current_copy** nonvolatile so it won’t be modified unexpectedly. This will help in the comparison of the g_set_current with the saved copy. The function **Update_Set_Current** is called by the [Thread_Buck_Update_Setpoint](Source/threads.c#L89) thread. 
@@ -94,10 +114,12 @@ void Control_HBLED(void) {
 }
 ```
 
-### **Evaluation of Effectiveness** ###
+### 3.1.3 Evaluation of Effectiveness <a name="debug1_3"></a>
 As shown in Figure 1.2  this process eliminates non expected current values and there isn’t a spike in any of the currents. Other solutions were first tested but there was still a spike in the current. There is no visible signal on the oscilloscope of the high current output which shows that there is a good timing response for this solution. This is even with an oscilloscope visualization of 15uS per division.  
 
-## **Fault 2: PID_FX_GAINS**
+##  3.2 Fault 2: PID_FX_GAINS <a name="debug2"></a>
+
+### 3.2.1 Analysis <a name="debug2_1"></a>
 
 <table>
   <tr>
@@ -112,7 +134,7 @@ As shown in Figure 1.2  this process eliminates non expected current values and 
 
 The fault **PID_FX_GAIN** changes the current’s gain. On Figure 2.1 we can see how the current starts incrementally changing its gain until the pattern is not as expected. This simulates a case when the SPid, which contains proportional gain, integral gain, and derivative gain, changes by an unexpected event. 
 
-### **Fault Management Approach** ###
+###  3.2.2 Fault Management Approach  <a name="debug2_2"></a>
 
 To be able to solve this problem, I first needed to figure out where the values for gain are stored. I found out that values are stored in a struct type SPIDFX instantiated as **plantPID_FX** which contains the proportional gain, integral gain, and derivative gain among other values. These values are used in the function **UpdatePID_FX** to calculate the proportional, integral, and derivative terms with respect with the error_FX which is the now current error of this term.
 
@@ -154,10 +176,13 @@ if (pGain_Store || iGain_store || dGain_Store){
 }
 ```
 
-### **Evaluation of Effectiveness** ###
+###  3.2.3 Evaluation of Effectiveness  <a name="debug2_3"></a>
+
 As shown in Figure 2.2 this process eliminates any unwanted change in the gain of current. This solution does not require a correction time as seen in the orange current. There is no visible signal on the oscilloscope of where the problem is, which shows that there is a good timing response for this solution. This is even with an oscilloscope visualization of 20mS per division.  
 
-## **Fault 3: LCD_MUTEX**
+##  3.3 Fault 3: LCD_MUTEX  <a name="debug3"></a>
+
+### 3.3.1 Analysis  <a name="debug3_1"></a>
 
  [Video Link 3.1](https://youtu.be/-7olpZ1rwAU)
 
@@ -167,7 +192,7 @@ As shown in Figure 2.2 this process eliminates any unwanted change in the gain o
 
 The fault **TR_LCD_mutex** acquires the **LDC_mutex** and does not return it. On **Video link 3.1** we can see how the LCD gets stuck. This simulates a case when the mutex is stuck in an infinite loop. 
 
-### **Fault Management Approach** ###
+### 3.3.2 Fault Management Approach  <a name="debug3_2"></a>
 
 To be able to solve this problem, I first needed to figure out in which mutex the code will get stuck. I noticed that it was the LCD that was stuck, and I also analyzed the fault code where it was stuck in. A WatchDog timer was implemented to avoid getting the MCU stuck at the LCD mutex. 
 
@@ -213,11 +238,13 @@ void LCD_Text_PrintChar(PT_T * pos, char ch) {
 #endif
 ```
 
-### **Evaluation of Effectiveness** ###
+### 3.3.3 Evaluation of Effectiveness <a name="debug3_3"></a>
+
 To visualize the reset, I set the oscilloscope which recorded the reset process. From the time the infinite loop starts to the reset there is a 605 ms time. This solution may reset and the MCU to which may cause the loss of current processes, but it is a great solution since most likely the OS was in a non-recoverable state.
 
 <div style="text-align:center"><img src="https://github.com/YuviniVelasquez/embedded_systems_shields_up/blob/main/Images/3.1.jpg" /></div>
 <div style="text-align:center">Restart process visualization with oscilloscope</div>
 
-## Conclusion and retrospective ##
-This project was very interesting and engaging. I was able to usea embedded system concepts learned. I did not have any hardware, driver, or debuggger problems as I did in onther projects but I did have to spend some time setting up the Analog Discovery 2 and using the oscilloscope.
+## 4. Conclusion and retrospective <a name="conclusions"></a>
+
+This project was very interesting and engaging. I was able to use the embedded system concepts I learned in the debugging. I did not have any hardware, driver, or debuggger setup problems as I did in onther projects but, I did have to spend some time setting up the Analog Discovery 2 and the oscilloscope.
