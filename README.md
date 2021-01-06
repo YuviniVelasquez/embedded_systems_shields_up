@@ -57,7 +57,7 @@ To manage these faults included creating a system that stores and verifies previ
 
 ## 3.1 Fault 1: SETPOINT_HIGH <a name="debug1"></a>
 
-### 3.1.1 Analysis <a name="debug1_1"></a>
+### Analysis <a name="debug1_1"></a>
 <table>
 
   <tr>
@@ -72,7 +72,7 @@ To manage these faults included creating a system that stores and verifies previ
 
 The fault set_point_high manually changes the current setpoint which make the current go very high. On Figure 0.1 we can see how the current goes high for 1.745 ms. This simulates a case when the current is set to high by an unexpected event. After some current comparison in the **Control_HBLED** we can correct an unexpected high value.
 
-### 3.1.2 Fault Debugging Approach <a name="debug1_2"></a>
+### Fault Debugging Approach <a name="debug1_2"></a>
 To be able to solve this problem, I first needed to figure out the function that is updating the **g_set_current** value. This function happened to be [Update_Set_Current](Source/control.c#L295).
 
 In here I created a copy of the set current called **g_set_current_copy** nonvolatile so it won’t be modified unexpectedly. This will help in the comparison of the g_set_current with the saved copy. The function **Update_Set_Current** is called by the [Thread_Buck_Update_Setpoint](Source/threads.c#L89) thread. 
@@ -114,12 +114,12 @@ void Control_HBLED(void) {
 }
 ```
 
-### 3.1.3 Evaluation of Effectiveness <a name="debug1_3"></a>
+### Evaluation of Effectiveness <a name="debug1_3"></a>
 As shown in Figure 1.2  this process eliminates non expected current values and there isn’t a spike in any of the currents. Other solutions were first tested but there was still a spike in the current. There is no visible signal on the oscilloscope of the high current output which shows that there is a good timing response for this solution. This is even with an oscilloscope visualization of 15uS per division.  
 
 ##  3.2 Fault 2: PID_FX_GAINS <a name="debug2"></a>
 
-### 3.2.1 Analysis <a name="debug2_1"></a>
+### Analysis <a name="debug2_1"></a>
 
 <table>
   <tr>
@@ -134,7 +134,7 @@ As shown in Figure 1.2  this process eliminates non expected current values and 
 
 The fault **PID_FX_GAIN** changes the current’s gain. On Figure 2.1 we can see how the current starts incrementally changing its gain until the pattern is not as expected. This simulates a case when the SPid, which contains proportional gain, integral gain, and derivative gain, changes by an unexpected event. 
 
-###  3.2.2 Fault Management Approach  <a name="debug2_2"></a>
+### Fault Management Approach  <a name="debug2_2"></a>
 
 To be able to solve this problem, I first needed to figure out where the values for gain are stored. I found out that values are stored in a struct type SPIDFX instantiated as **plantPID_FX** which contains the proportional gain, integral gain, and derivative gain among other values. These values are used in the function **UpdatePID_FX** to calculate the proportional, integral, and derivative terms with respect with the error_FX which is the now current error of this term.
 
@@ -176,13 +176,13 @@ if (pGain_Store || iGain_store || dGain_Store){
 }
 ```
 
-###  3.2.3 Evaluation of Effectiveness  <a name="debug2_3"></a>
+### Evaluation of Effectiveness  <a name="debug2_3"></a>
 
 As shown in Figure 2.2 this process eliminates any unwanted change in the gain of current. This solution does not require a correction time as seen in the orange current. There is no visible signal on the oscilloscope of where the problem is, which shows that there is a good timing response for this solution. This is even with an oscilloscope visualization of 20mS per division.  
 
 ##  3.3 Fault 3: LCD_MUTEX  <a name="debug3"></a>
 
-### 3.3.1 Analysis  <a name="debug3_1"></a>
+### Analysis  <a name="debug3_1"></a>
 
  [Video Link 3.1](https://youtu.be/-7olpZ1rwAU)
 
@@ -192,7 +192,7 @@ As shown in Figure 2.2 this process eliminates any unwanted change in the gain o
 
 The fault **TR_LCD_mutex** acquires the **LDC_mutex** and does not return it. On **Video link 3.1** we can see how the LCD gets stuck. This simulates a case when the mutex is stuck in an infinite loop. 
 
-### 3.3.2 Fault Management Approach  <a name="debug3_2"></a>
+### Fault Management Approach  <a name="debug3_2"></a>
 
 To be able to solve this problem, I first needed to figure out in which mutex the code will get stuck. I noticed that it was the LCD that was stuck, and I also analyzed the fault code where it was stuck in. A WatchDog timer was implemented to avoid getting the MCU stuck at the LCD mutex. 
 
@@ -238,7 +238,7 @@ void LCD_Text_PrintChar(PT_T * pos, char ch) {
 #endif
 ```
 
-### 3.3.3 Evaluation of Effectiveness <a name="debug3_3"></a>
+### Evaluation of Effectiveness <a name="debug3_3"></a>
 
 To visualize the reset, I set the oscilloscope which recorded the reset process. From the time the infinite loop starts to the reset there is a 605 ms time. This solution may reset and the MCU to which may cause the loss of current processes, but it is a great solution since most likely the OS was in a non-recoverable state.
 
